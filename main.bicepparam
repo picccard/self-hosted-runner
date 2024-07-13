@@ -19,3 +19,5 @@ param parAcaContainers = [
     }
   }
 ]
+param parAcaScaleMinReplicas = 0
+param parAcaScaleMaxReplicas = 5

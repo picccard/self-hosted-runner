@@ -21,6 +21,12 @@ param parAcaName string
 @description('The containers to deploy in the Container App')
 param parAcaContainers typContainer[]
 
+@description('The minimum number of replicas for the Container App')
+param parAcaScaleMinReplicas int
+
+@description('The maximum number of replicas for the Container App')
+param parAcaScaleMaxReplicas int
+
 resource rg  'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: parResourceGroupName
   location: parLocation
@@ -60,6 +66,8 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
     name: parAcaName
     environmentId: managedEnv.outputs.resourceId
     containers: parAcaContainers
+    scaleMinReplicas: parAcaScaleMinReplicas
+    scaleMaxReplicas: parAcaScaleMaxReplicas
   }
 }
 
