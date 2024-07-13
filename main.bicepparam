@@ -9,4 +9,13 @@ param parLogWorkspaceName = 'log-gh-runners-001'
 param parManagedEnvironmentName = 'env-gh-runners-001'
 
 param parAcaName = 'aca-gh-runners-001'
-param parAcaImage = 'nginxdemos/hello:plain-text' // tag: latest | plain-text
+param parAcaContainers = [
+  {
+    name: 'nginx'
+    image: 'nginxdemos/hello:plain-text' // tag: latest | plain-text
+    resources: {
+      cpu: '0.25'
+      memory: '0.5Gi'
+    }
+  }
+]

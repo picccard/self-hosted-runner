@@ -18,7 +18,8 @@ param parManagedEnvironmentName string
 @description('The name of the Container App')
 param parAcaName string
 
-param parAcaImage string
+@description('The containers to deploy in the Container App')
+param parAcaContainers typContainer[]
 
 resource rg  'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: parResourceGroupName
@@ -58,15 +59,15 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
   params: {
     name: parAcaName
     environmentId: managedEnv.outputs.resourceId
-    containers: [
-      {
-        name: 'nginx'
-        image: parAcaImage
-        resources: {
-            cpu: '0.25'
-            memory: '0.5Gi'
-        }
-      }
-    ]
+    containers: parAcaContainers
+  }
+}
+
+type typContainer = {
+  name: string
+  image: string
+  resources: {
+    cpu: string
+    memory: string
   }
 }
