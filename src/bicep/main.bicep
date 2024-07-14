@@ -34,10 +34,10 @@ param parAcaScaleMaxReplicas int
 param parKvName string
 
 @description('The GitHub repository owner')
-param parGithubRepoOwner string
+param parGitHubRepoOwner string
 
 @description('The name of the GitHub repository to install the self-hosted runner into')
-param parGithubRepoName string
+param parGitHubRepoName string
 
 @description('The GitHub Access Token with permission to fetch registration-token')
 @secure()
@@ -117,8 +117,8 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
         {
           env: [
             { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
-            { name: 'GHUSER', value: parGithubRepoOwner }
-            { name: 'REPO', value: parGithubRepoName }
+            { name: 'OWNER', value: parGitHubRepoOwner }
+            { name: 'REPO', value: parGitHubRepoName }
           ]
         }
       )
