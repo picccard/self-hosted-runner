@@ -1,5 +1,9 @@
 #Requires -Modules @{ ModuleName="Az.Resources"; ModuleVersion="7.2.0" }
 
+param(
+    [switch]$AsStack
+)
+
 $adminObjectId = '<redacted>'
 $azSubscriptionName = 'landing-zone-demo-001'
 $azRegion = 'norwayeast'
@@ -17,10 +21,22 @@ $splat = @{
 
 Select-AzSubscription -Subscription $azSubscriptionName
 
-$stackExists = $null -ne (Get-AzSubscriptionDeploymentStack -Name $splat.Name -ErrorAction SilentlyContinue)
-if ($stackExists) {
-    Set-AzSubscriptionDeploymentStack @splat
+if ($AsStack) {
+    $stackExists = $null -ne (Get-AzSubscriptionDeploymentStack -Name $splat.Name -ErrorAction SilentlyContinue)
+    if ($stackExists) {
+        Set-AzSubscriptionDeploymentStack @splat
+    }
+    else {
+        New-AzSubscriptionDeploymentStack @splat
+    }
+    exit 0
 }
-else {
-    New-AzSubscriptionDeploymentStack @splat
+
+$deploySplat = @{
+    Name                           = "self-hosted-runners-nonstack-{0}" -f (Get-Date).ToString("yyyyMMdd-HH-mm-ss")
+    Location                       = $azRegion
+    TemplateFile                   = 'src/bicep/main.bicep'
+    TemplateParameterFile          = 'main.bicepparam'
+    Verbose                        = $true
 }
+New-AzSubscriptionDeployment @deploySplat
