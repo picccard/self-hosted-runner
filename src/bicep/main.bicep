@@ -116,9 +116,10 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
         parAcaContainer,
         {
           env: [
-            { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
             { name: 'OWNER', value: parGitHubRepoOwner }
             { name: 'REPO', value: parGitHubRepoName }
+            { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
+            { name: 'RUNNER_NAME_PREFIX', value: 'self-hosted-runner' }
           ]
         }
       )

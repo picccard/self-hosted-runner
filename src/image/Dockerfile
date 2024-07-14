@@ -1,8 +1,10 @@
 FROM mcr.microsoft.com/powershell:7.3-ubuntu-22.04
 
 # set the github runner version
-ARG RUNNER_VERSION
-ENV DEBIAN_FRONTEND=noninteractive
+ARG RUNNER_VERSION=2.317.0
+
+# prevents installdependencies.sh from prompting the user and blocking the image creation
+ARG DEBIAN_FRONTEND=noninteractive
 
 LABEL Author="Eskil Uhlving Larsen"
 LABEL GitHub="https://github.com/picccard"

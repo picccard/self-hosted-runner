@@ -24,6 +24,6 @@ param parAcaScaleMaxReplicas = 5
 
 param parKvName = 'kv-gh-runners-001'
 
-param parGithubRepoOwner = 'picccard'
-param parGithubRepoName = 'self-hosted-runner'
+param parGitHubRepoOwner = 'picccard'
+param parGitHubRepoName = 'self-hosted-runner'
 param parGitHubAccessToken = readEnvironmentVariable('GITHUB_ACCESS_TOKEN')

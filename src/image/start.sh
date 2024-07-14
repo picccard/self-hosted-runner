@@ -3,8 +3,9 @@ OWNER=$OWNER
 REPO=$REPO
 ACCESS_TOKEN=$ACCESS_TOKEN
 
-RUNNER_NAME="RUNNER-$(hostname)"
+RUNNER_NAME_PREFIX=${RUNNER_NAME_PREFIX:-github-runner} # optional env
 
+RUNNER_NAME=${RUNNER_NAME_PREFIX}-$(hostname)
 
 REG_TOKEN=$(curl -sX POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ACCESS_TOKEN}" https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token | jq .token --raw-output)
 cd /home/docker/actions-runner
