@@ -19,8 +19,8 @@ param parAcaContainer = {
 }
 
 param parAcaRevisionSuffix = 'v1'
-param parAcaScaleMinReplicas = 0
-param parAcaScaleMaxReplicas = 5
+param parAcaScaleMinReplicas = 2
+param parAcaScaleMaxReplicas = 2
 
 param parKvName = 'kv-gh-runners-001'
 
