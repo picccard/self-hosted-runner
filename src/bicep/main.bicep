@@ -39,11 +39,11 @@ param parGithubRepoOwner string
 @description('The name of the GitHub repository to install the self-hosted runner into')
 param parGithubRepoName string
 
-@description('The GitHub Personal Access Token (PAT) with permission to fetch registration-token')
+@description('The GitHub Access Token with permission to fetch registration-token')
 @secure()
-param parGitHubPat string
+param parGitHubAccessToken string
 
-var varSecretNameGitHubPat = 'github-pat' // A value must consist of lower case alphanumeric characters, '-', and must start and end with an alphanumeric character. The length must not be more than 253 characters.
+var varSecretNameGitHubAccessToken = 'github-accesstoken' // A value must consist of lower case alphanumeric characters, '-', and must start and end with an alphanumeric character. The length must not be more than 253 characters.
 
 resource rg  'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: parResourceGroupName
@@ -99,8 +99,8 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
     secrets: {
       secureList: [
         {
-          name: varSecretNameGitHubPat
-          keyVaultUrl: '${kv.outputs.uri}secrets/${varSecretNameGitHubPat}' // kv.outputs.uri when aca uses systemassigned-managedid -> The expression is involved in a cycle ("aca" -> "kv").
+          name: varSecretNameGitHubAccessToken
+          keyVaultUrl: '${kv.outputs.uri}secrets/${varSecretNameGitHubAccessToken}' // kv.outputs.uri when aca uses systemassigned-managedid -> The expression is involved in a cycle ("aca" -> "kv").
           identity: acaUami.outputs.resourceId // system assigned managed id -> 'system'
         }
       ]
@@ -116,7 +116,7 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
         parAcaContainer,
         {
           env: [
-            { name: 'PAT', secretRef: varSecretNameGitHubPat }
+            { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
             { name: 'GHUSER', value: parGithubRepoOwner }
             { name: 'REPO', value: parGithubRepoName }
           ]
@@ -146,8 +146,8 @@ module kv 'br/public:avm/res/key-vault/vault:0.6.2' = {
     publicNetworkAccess: 'Enabled'
     secrets: [
       {
-        name: varSecretNameGitHubPat
-        value: parGitHubPat
+        name: varSecretNameGitHubAccessToken
+        value: parGitHubAccessToken
       }
     ]
     roleAssignments: [

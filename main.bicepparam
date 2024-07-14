@@ -26,4 +26,4 @@ param parKvName = 'kv-gh-runners-001'
 
 param parGithubRepoOwner = 'picccard'
 param parGithubRepoName = 'self-hosted-runner'
-param parGitHubPat = readEnvironmentVariable('GITHUB_PAT')
+param parGitHubAccessToken = readEnvironmentVariable('GITHUB_ACCESS_TOKEN')
