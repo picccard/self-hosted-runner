@@ -25,6 +25,10 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 # install the az module for powershell
 RUN ["pwsh", "-c", "Install-Module -Name Az -RequiredVersion 12.1.0 -Scope AllUsers -Force"]
 
+# install bicep
+RUN curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 \
+    && chmod +x ./bicep && mv ./bicep /usr/local/bin/bicep
+
 # cd into the user directory, download and unzip the github actions runner
 RUN cd /home/docker && mkdir actions-runner && cd actions-runner \
     && curl -O -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
