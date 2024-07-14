@@ -18,8 +18,11 @@ param parManagedEnvironmentName string
 @description('The name of the Container App')
 param parAcaName string
 
-@description('The containers to deploy in the Container App')
-param parAcaContainers typContainer[]
+@description('The container to deploy in the Container App')
+param parAcaContainer typContainer
+
+@description('The revision suffix for the Container App')
+param parAcaRevisionSuffix string
 
 @description('The minimum number of replicas for the Container App')
 param parAcaScaleMinReplicas int
@@ -27,17 +30,45 @@ param parAcaScaleMinReplicas int
 @description('The maximum number of replicas for the Container App')
 param parAcaScaleMaxReplicas int
 
+@description('The name of the Key Vault')
+param parKvName string
+
+@description('The GitHub repository owner')
+param parGithubRepoOwner string
+
+@description('The name of the GitHub repository to install the self-hosted runner into')
+param parGithubRepoName string
+
+@description('The GitHub Personal Access Token (PAT) with permission to fetch registration-token')
+@secure()
+param parGitHubPat string
+
+var varSecretNameGitHubPat = 'github-pat' // A value must consist of lower case alphanumeric characters, '-', and must start and end with an alphanumeric character. The length must not be more than 253 characters.
+
 resource rg  'Microsoft.Resources/resourceGroups@2024-03-01' = {
   name: parResourceGroupName
   location: parLocation
 }
 
+module acaUami 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.2' = {
+  scope: rg
+  name: '${uniqueString(deployment().name, parLocation)}-aca-uami'
+  params: {
+    name: 'id-${parAcaName}'
+  }
+}
 
 module acr 'br/public:avm/res/container-registry/registry:0.3.1' = {
   scope: rg
   name: '${uniqueString(deployment().name, parLocation)}-acr'
   params: {
     name: parAcrName
+    roleAssignments: [
+      {
+        principalId: acaUami.outputs.principalId
+        roleDefinitionIdOrName: 'AcrPull'
+      }
+    ]
   }
 }
 
@@ -65,9 +96,65 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
   params: {
     name: parAcaName
     environmentId: managedEnv.outputs.resourceId
-    containers: parAcaContainers
+    secrets: {
+      secureList: [
+        {
+          name: varSecretNameGitHubPat
+          keyVaultUrl: '${kv.outputs.uri}secrets/${varSecretNameGitHubPat}' // kv.outputs.uri when aca uses systemassigned-managedid -> The expression is involved in a cycle ("aca" -> "kv").
+          identity: acaUami.outputs.resourceId // system assigned managed id -> 'system'
+        }
+      ]
+    }
+    registries: [
+      {
+        server: acr.outputs.loginServer
+        identity: acaUami.outputs.resourceId
+      }
+    ]
+    containers: [
+      union(
+        parAcaContainer,
+        {
+          env: [
+            { name: 'PAT', secretRef: varSecretNameGitHubPat }
+            { name: 'GHUSER', value: parGithubRepoOwner }
+            { name: 'REPO', value: parGithubRepoName }
+          ]
+        }
+      )
+    ]
+    revisionSuffix: parAcaRevisionSuffix
     scaleMinReplicas: parAcaScaleMinReplicas
     scaleMaxReplicas: parAcaScaleMaxReplicas
+    managedIdentities: {
+      userAssignedResourceIds: [acaUami.outputs.resourceId]
+    }
+  }
+}
+
+module kv 'br/public:avm/res/key-vault/vault:0.6.2' = {
+  scope: rg
+  name: '${uniqueString(deployment().name, parLocation)}-kv'
+  params: {
+    name: parKvName
+    sku: 'standard'
+    enablePurgeProtection: false
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 7
+    // enableVaultForDeployment: true
+    publicNetworkAccess: 'Enabled'
+    secrets: [
+      {
+        name: varSecretNameGitHubPat
+        value: parGitHubPat
+      }
+    ]
+    roleAssignments: [
+      {
+        principalId: acaUami.outputs.principalId
+        roleDefinitionIdOrName: 'Key Vault Secrets User'
+      }
+    ]
   }
 }
 
