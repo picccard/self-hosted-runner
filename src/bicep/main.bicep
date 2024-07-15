@@ -120,6 +120,7 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
             { name: 'REPO', value: parGitHubRepoName }
             { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
             { name: 'RUNNER_NAME_PREFIX', value: 'self-hosted-runner' }
+            { name: 'APPSETTING_WEBSITE_SITE_NAME', value: 'azcli-managed-identity-endpoint-workaround' } // https://github.com/Azure/azure-cli/issues/22677
           ]
         }
       )
