@@ -1,16 +1,16 @@
-name: CI
+name: Print runner data
 
 on:
   workflow_dispatch:
 
 jobs:
-  testing-runner:
+  print-runner-data:
     runs-on: [self-hosted]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Perform a Pester test from the Tests.ps1 file
+      - name: Print data from the runner
         shell: pwsh
         run: |
           az --version
@@ -19,7 +19,6 @@ jobs:
           Write-Host ""
           pwsh --version
           Write-Host ""
-          Get-Module 
           Get-Module -ListAvailable
           Write-Host ""
-          gci env:
+          Get-ChildItem env: | Select-Object Name, Value
