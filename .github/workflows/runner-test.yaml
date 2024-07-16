@@ -46,4 +46,4 @@ jobs:
           Write-Host ""
           Get-Module -ListAvailable
           Write-Host ""
-          Get-ChildItem env: | Select-Object Name, Value
+          Get-ChildItem env: | Select-Object Name, Value | Format-Table *
