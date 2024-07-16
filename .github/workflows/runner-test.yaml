@@ -39,11 +39,11 @@ jobs:
         shell: pwsh
         run: |
           az --version
-          Write-Host ""
+          Write-Host "----------------------------"
           bicep --version
-          Write-Host ""
+          Write-Host "----------------------------"
           pwsh --version
-          Write-Host ""
+          Write-Host "----------------------------"
           Get-Module -ListAvailable
-          Write-Host ""
-          Get-ChildItem env: | Select-Object Name, Value | Format-Table *
+          Write-Host "----------------------------"
+          Get-ChildItem env: | Format-Table Name, Value
