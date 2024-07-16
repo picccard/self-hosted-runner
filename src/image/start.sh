@@ -16,9 +16,20 @@ export -n REG_TOKEN
 RUNNER_NAME=${RUNNER_NAME_PREFIX}-$(hostname)
 # RUNNER_NAME=${RUNNER_NAME_PREFIX}-$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')
 
-REG_TOKEN=$(curl -sX POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token ${ACCESS_TOKEN}" https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token | jq .token --raw-output)
-cd /home/docker/actions-runner
-./config.sh --unattended --url https://github.com/${OWNER}/${REPO} --token ${REG_TOKEN} --name ${RUNNER_NAME} --ephemeral --disableupdate
+REG_TOKEN=$(curl -sL \
+    -X POST \
+    -H "Accept: application/vnd.github.v3+json" \
+    -H "Authorization: token ${ACCESS_TOKEN}" \
+    https://api.github.com/repos/${OWNER}/${REPO}/actions/runners/registration-token \
+    | jq .token --raw-output)
+
+./config.sh \
+    --unattended \
+    --url https://github.com/${OWNER}/${REPO} \
+    --token ${REG_TOKEN} \
+    --name ${RUNNER_NAME} \
+    --ephemeral \
+    --disableupdate
 
 cleanup() {
     echo "Removing runner..."
