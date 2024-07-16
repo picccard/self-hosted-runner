@@ -12,10 +12,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Install Az Cli
+        shell: pwsh
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Install and configure Bicep version ${{ env.version_bicep }}
         shell: pwsh
-        run: |         
+        run: |
           curl -Lo bicep https://github.com/Azure/bicep/releases/download/${{ env.version_bicep }}/bicep-linux-x64
           chmod +x ./bicep
           sudo mv ./bicep /usr/local/bin/bicep
