@@ -1,5 +1,8 @@
 name: Print runner data
 
+env:
+  version_bicep: v0.28.1
+
 on:
   workflow_dispatch:
 
@@ -10,6 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install and configure Bicep version ${{ env.version_bicep }}
+        shell: pwsh
+        run: |         
+          curl -Lo bicep https://github.com/Azure/bicep/releases/download/${{ env.version_bicep }}/bicep-linux-x64
+          chmod +x ./bicep
+          sudo mv ./bicep /usr/local/bin/bicep
+          # Configure az cli to use the externally installed version
+          az config set bicep.use_binary_from_path=true
+      
+      - name: Install pwsh modules [Az.Accounts Az.Resources Az.KeyVault Az.Automation]
+        shell: pwsh
+        run: |
+          Install-Module -Name Az.Accounts -RequiredVersion 3.0.2 -Repository PSGallery -Force
+          Install-Module -Name Az.Resources -RequiredVersion 7.2.0 -Repository PSGallery -Force
+          Install-Module -Name Az.KeyVault -RequiredVersion 6.0.1 -Repository PSGallery -Force
+          Install-Module -Name Az.Automation -RequiredVersion 1.10.0 -Repository PSGallery -Force
+          
       - name: Print data from the runner
         shell: pwsh
         run: |
