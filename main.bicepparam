@@ -5,11 +5,13 @@ param parResourceGroupName = 'rg-gh-runners-001'
 
 param parAcrName = 'eulano'
 
+param parContainerDeployMethod = 'apps' // 'apps' | 'jobs' | 'skip'
 param parLogWorkspaceName = 'log-gh-runners-001'
 param parManagedEnvironmentName = 'env-gh-runners-001'
 
+param parAcjName = 'acj-gh-runners-001'
 param parAcaName = 'aca-gh-runners-001'
-param parAcaContainer = {
+param parContainer = {
   name: 'ghrunner'
   image: 'eulano.azurecr.io/ghrunner-linux:v0.1.0'
   resources: {

@@ -15,11 +15,17 @@ param parLogWorkspaceName string
 @description('The name of the Managed Environment')
 param parManagedEnvironmentName string
 
+@description('Whether to deploy the container an app or a job. Option \'skip\' to deploy prereqs only')
+param parContainerDeployMethod 'apps' | 'jobs' | 'skip'
+
+@description('The name of the Container Job')
+param parAcjName string
+
 @description('The name of the Container App')
 param parAcaName string
 
-@description('The container to deploy in the Container App')
-param parAcaContainer typContainer
+@description('The container to deploy in the Container App or Job')
+param parContainer typContainer
 
 @description('The revision suffix for the Container App')
 param parAcaRevisionSuffix string
@@ -90,7 +96,7 @@ module managedEnv 'br/public:avm/res/app/managed-environment:0.5.2' = {
   }
 }
 
-module aca 'br/public:avm/res/app/container-app:0.4.1' = {
+module aca 'br/public:avm/res/app/container-app:0.4.1' = if (parContainerDeployMethod == 'apps') {
   scope: rg
   name: '${uniqueString(deployment().name, parLocation)}-aca'
   params: {
@@ -113,7 +119,7 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
     ]
     containers: [
       union(
-        parAcaContainer,
+        parContainer,
         {
           env: [
             { name: 'OWNER', value: parGitHubRepoOwner }
@@ -131,6 +137,68 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = {
     ingressExternal: false
     managedIdentities: {
       userAssignedResourceIds: [acaUami.outputs.resourceId]
+    }
+  }
+}
+
+module acj 'br/public:avm/res/app/job:0.3.0' = if (parContainerDeployMethod == 'jobs') {
+  scope: rg
+  name: '${uniqueString(deployment().name, parLocation)}-acj'
+  params: {
+    name: parAcjName
+    environmentResourceId: managedEnv.outputs.resourceId
+    containers: [
+      union(
+        parContainer,
+        {
+          env: [
+            { name: 'OWNER', value: parGitHubRepoOwner }
+            { name: 'REPO', value: parGitHubRepoName }
+            { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
+            { name: 'RUNNER_NAME_PREFIX', value: 'self-hosted-runner' }
+            { name: 'APPSETTING_WEBSITE_SITE_NAME', value: 'azcli-managed-identity-endpoint-workaround' } // https://github.com/Azure/azure-cli/issues/22677
+          ]
+        }
+      )
+    ]
+    secrets: [
+      {
+        name: varSecretNameGitHubAccessToken
+        keyVaultUrl: '${kv.outputs.uri}secrets/${varSecretNameGitHubAccessToken}' // kv.outputs.uri when aca uses systemassigned-managedid -> The expression is involved in a cycle ("aca" -> "kv").
+        identity: acaUami.outputs.resourceId // system assigned managed id -> 'system'
+      }
+    ]
+    registries: [
+      {
+        server: acr.outputs.loginServer
+        identity: acaUami.outputs.resourceId
+      }
+    ]
+    triggerType: 'Event'
+    eventTriggerConfig: {
+      scale: {
+        rules: [
+          {
+            name: 'github-runner-scaling-rule'
+            type: 'github-runner'
+            auth: [
+              {
+                triggerParameter: 'personalAccessToken'
+                secretRef: varSecretNameGitHubAccessToken
+              }
+            ]
+            metadata: {
+              githubApiURL: 'https://api.github.com'
+              runnerScope: 'repo' // org (organisation) | ent (enterprise) | repo (repository)
+              owner: parGitHubRepoOwner
+              repos: parGitHubRepoName
+            }
+          }
+        ]
+      }
+    }
+    managedIdentities: {
+      userAssignedResourceIds:[acaUami.outputs.resourceId]
     }
   }
 }
