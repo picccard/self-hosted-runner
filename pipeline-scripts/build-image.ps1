@@ -44,17 +44,3 @@ az acr build -t "${ImageName}:v${imageVersion}" -t "${ImageName}:latest" --regis
 
 az account set --subscription $Subscription
 az acr build -t "${ImageName}:v${imageVersion}" -t "${ImageName}:latest" --registry $RegistryName --platform $Platform --build-arg RUNNER_VERSION=$RunnerVersion --file $dockerfileName $DockerfileDir
-
-
-
-
-# https://github.com/dotnet/sdk/issues/39907
-
-# https://github.com/actions/runner/pkgs/container/actions-runner
-# https://github.com/actions/runner/releases
-# https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
-
-# https://learn.microsoft.com/en-us/azure/container-apps/tutorial-ci-cd-runners-jobs?tabs=azure-powershell&pivots=container-apps-jobs-self-hosted-ci-cd-github-actions
-# https://github.com/Azure-Samples/container-apps-ci-cd-runner-tutorial/blob/main/Dockerfile.github
-
-# https://github.com/xmi-cs/aca-gh-actions-runner/blob/main/src/start.sh

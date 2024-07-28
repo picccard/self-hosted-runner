@@ -5,7 +5,7 @@ param parResourceGroupName = 'rg-gh-runners-001'
 
 param parAcrName = 'eulano'
 
-param parContainerDeployMethod = 'apps' // 'apps' | 'jobs' | 'skip'
+param parContainerDeployMethod = 'jobs' // 'apps' | 'jobs' | 'skip'
 param parLogWorkspaceName = 'log-gh-runners-001'
 param parManagedEnvironmentName = 'env-gh-runners-001'
 
@@ -20,7 +20,7 @@ param parContainer = {
   }
 }
 
-param parAcaRevisionSuffix = 'v1'
+param parAcaRevisionSuffix = 'v1' // A revision name must consist of lower case alphanumeric characters or '-', start with an alphabetic character, and end with an alphanumeric character. The length of the revision name must not be more than a combined 54 characters with the container app name.
 param parAcaScaleMinReplicas = 2
 param parAcaScaleMaxReplicas = 2
 
@@ -28,4 +28,4 @@ param parKvName = 'kv-gh-runners-001'
 
 param parGitHubRepoOwner = 'picccard'
 param parGitHubRepoName = 'self-hosted-runner'
-param parGitHubAccessToken = readEnvironmentVariable('GITHUB_ACCESS_TOKEN')
+param parGitHubAccessToken = readEnvironmentVariable('GITHUB_ACCESS_TOKEN') // az.getSecret('<subscription-id>', '<rg-name>', '<key-vault-name>', '<secret-name>', '<secret-version>')
