@@ -96,12 +96,12 @@ module managedEnv 'br/public:avm/res/app/managed-environment:0.5.2' = {
   }
 }
 
-module aca 'br/public:avm/res/app/container-app:0.4.1' = if (parContainerDeployMethod == 'apps') {
+module aca 'br/public:avm/res/app/container-app:0.7.0' = if (parContainerDeployMethod == 'apps') {
   scope: rg
   name: '${uniqueString(deployment().name, parLocation)}-aca'
   params: {
     name: parAcaName
-    environmentId: managedEnv.outputs.resourceId
+    environmentResourceId: managedEnv.outputs.resourceId
     secrets: {
       secureList: [
         {
@@ -134,7 +134,7 @@ module aca 'br/public:avm/res/app/container-app:0.4.1' = if (parContainerDeployM
     revisionSuffix: parAcaRevisionSuffix
     scaleMinReplicas: parAcaScaleMinReplicas
     scaleMaxReplicas: parAcaScaleMaxReplicas
-    ingressExternal: false
+    disableIngress: true
     managedIdentities: {
       userAssignedResourceIds: [acaUami.outputs.resourceId]
     }
