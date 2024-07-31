@@ -134,7 +134,7 @@ module aca 'br/public:avm/res/app/container-app:0.7.0' = if (parContainerDeployM
     revisionSuffix: parAcaRevisionSuffix
     scaleMinReplicas: parAcaScaleMinReplicas
     scaleMaxReplicas: parAcaScaleMaxReplicas
-    ingressExternal: false
+    disableIngress: true
     managedIdentities: {
       userAssignedResourceIds: [acaUami.outputs.resourceId]
     }
