@@ -7,6 +7,8 @@ param parAcrName = 'eulano'
 
 param parContainerDeployMethod = 'jobs' // 'apps' | 'jobs' | 'skip'
 param parLogWorkspaceName = 'log-gh-runners-001'
+param parManagedEnvironmentVnetName = 'vnet-gh-runners-001'
+param parManagedEnvironmentInfraSubnetName = 'snet-aca-env'
 param parManagedEnvironmentName = 'env-gh-runners-001'
 
 param parAcjName = 'acj-gh-runners-001'

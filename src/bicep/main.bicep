@@ -12,6 +12,12 @@ param parAcrName string
 @description('The name of the Log Analytics Workspace')
 param parLogWorkspaceName string
 
+@description('The name of the Virtual Network for the Managed Environment')
+param parManagedEnvironmentVnetName string
+
+@description('The name of the subnet for the Managed Environment infrastructure')
+param parManagedEnvironmentInfraSubnetName string
+
 @description('The name of the Managed Environment')
 param parManagedEnvironmentName string
 
@@ -83,6 +89,29 @@ module log 'br/public:avm/res/operational-insights/workspace:0.4.0' = {
   name: '${uniqueString(deployment().name, parLocation)}-log-workspace'
   params: {
     name: parLogWorkspaceName
+  }
+}
+
+module vnet 'br/public:avm/res/network/virtual-network:0.1.8' = {
+  name: '${uniqueString(deployment().name, parLocation)}-vnet'
+  scope: rg
+  params: {
+    name: parManagedEnvironmentVnetName
+    addressPrefixes: [
+      '10.20.0.0/16'
+    ]
+    subnets: [
+      {
+        name: parManagedEnvironmentInfraSubnetName
+        addressPrefix: '10.20.0.0/23'
+        delegation: [
+          {
+            name: 'Microsoft.App.environments'
+            service: 'Microsoft.App/environments'
+          }
+        ]
+      }
+    ]
   }
 }
 
