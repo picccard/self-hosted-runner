@@ -187,6 +187,7 @@ module aca 'br/public:avm/res/app/container-app:0.7.0' = if (parContainerDeployM
             { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
             { name: 'RUNNER_NAME_PREFIX', value: 'self-hosted-runner' }
             { name: 'APPSETTING_WEBSITE_SITE_NAME', value: 'azcli-managed-identity-endpoint-workaround' } // https://github.com/Azure/azure-cli/issues/22677
+            { name: 'MSI_CLIENT_ID', value: acaUami.outputs.clientId }
           ]
         }
       )
@@ -217,6 +218,7 @@ module acj 'br/public:avm/res/app/job:0.3.0' = if (parContainerDeployMethod == '
             { name: 'ACCESS_TOKEN', secretRef: varSecretNameGitHubAccessToken }
             { name: 'RUNNER_NAME_PREFIX', value: 'self-hosted-runner' }
             { name: 'APPSETTING_WEBSITE_SITE_NAME', value: 'azcli-managed-identity-endpoint-workaround' } // https://github.com/Azure/azure-cli/issues/22677
+            { name: 'MSI_CLIENT_ID', value: acaUami.outputs.clientId }
           ]
         }
       )
