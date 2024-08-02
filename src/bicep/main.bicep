@@ -21,6 +21,9 @@ param parManagedEnvironmentInfraSubnetName string
 @description('The name of the Managed Environment')
 param parManagedEnvironmentName string
 
+@description('The name of the infrastructure resource group for the Managed Environment')
+param parManagedEnvironmentInfraResourceGroupName string
+
 @description('Whether to deploy the container an app or a job. Option \'skip\' to deploy prereqs only')
 param parContainerDeployMethod 'apps' | 'jobs' | 'skip'
 
@@ -101,15 +104,19 @@ module vnet 'br/public:avm/res/network/virtual-network:0.1.8' = {
     subnets: [
       {
         name: parManagedEnvironmentInfraSubnetName
-        addressPrefix: '10.20.0.0/23'
-        /*delegations: [
+        addressPrefix: '10.20.0.0/23' // // https://github.com/microsoft/azure-container-apps/issues/451
+        // Consumption only (workloadProfiles: []) -> no snet delegations
+        // infrastructureResourceGroup CAN'T be customized
+        // Workload profiles (workloadProfiles: [{...}]) -> snet delegations required
+        // infrastructureResourceGroup CAN be customized
+        delegations: [
           {
             name: 'Microsoft.App.environments'
             properties: {
               serviceName: 'Microsoft.App/environments'
             }
           }
-        ]*/
+        ]
         serviceEndpoints: [
           { service: 'Microsoft.Storage' }
         ]
@@ -118,13 +125,31 @@ module vnet 'br/public:avm/res/network/virtual-network:0.1.8' = {
   }
 }
 
+/*
+https://learn.microsoft.com/en-us/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli#managed-resources
+Consumption only:
+1 public ip for egress
+2 loadbalancers if internal, 1 loadbalancer if external
+Workload profiles:
+1 public ip for egress, plus 1 public ip for ingress if external
+1 loadbalancer
+*/
 module managedEnv 'br/public:avm/res/app/managed-environment:0.5.2' = {
   scope: rg
   name: '${uniqueString(deployment().name, parLocation)}-managed-environment'
   params: {
     name: parManagedEnvironmentName
     logAnalyticsWorkspaceResourceId: log.outputs.resourceId
+    infrastructureResourceGroupName: parManagedEnvironmentInfraResourceGroupName
+    infrastructureSubnetId: first(vnet.outputs.subnetResourceIds)
+    internal: true
     zoneRedundant: false
+    workloadProfiles: [
+      {
+        name: 'Consumption'
+        workloadProfileType: 'Consumption'
+      }
+    ]
   }
 }
 
