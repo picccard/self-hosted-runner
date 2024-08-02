@@ -48,6 +48,9 @@ param parAcaScaleMaxReplicas int
 @description('The name of the Key Vault')
 param parKvName string
 
+@description('Storage account info, used during testing of private access over service endpoint')
+param parTestVnetServiceEndpoint typStorageAccountContainer?
+
 @description('The GitHub repository owner')
 param parGitHubRepoOwner string
 
@@ -286,6 +289,35 @@ module kv 'br/public:avm/res/key-vault/vault:0.6.2' = {
   }
 }
 
+module storage 'br/public:avm/res/storage/storage-account:0.9.1' =  if (parTestVnetServiceEndpoint != null) {
+  scope: rg
+  name: '${uniqueString(deployment().name, parLocation)}-storage-account'
+  params: {
+    name: parTestVnetServiceEndpoint.?storageAccountName!
+    skuName: 'Standard_LRS'
+    blobServices: {
+      containers: [
+        { name: parTestVnetServiceEndpoint.?containerName }
+      ]
+    }
+    roleAssignments: [
+      {
+        principalId: acaUami.outputs.principalId
+        roleDefinitionIdOrName: 'Storage Blob Data Owner'
+      }
+    ]
+    networkAcls: {
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: first(vnet.outputs.subnetResourceIds)
+          action: 'Allow'
+        }
+      ]
+    }
+  }
+}
+
 type typContainer = {
   name: string
   image: string
@@ -293,4 +325,9 @@ type typContainer = {
     cpu: string
     memory: string
   }
+}
+
+type typStorageAccountContainer = {
+  storageAccountName: string
+  containerName: string
 }

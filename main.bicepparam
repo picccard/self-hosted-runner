@@ -12,6 +12,12 @@ param parManagedEnvironmentInfraSubnetName = 'snet-aca-env'
 param parManagedEnvironmentInfraResourceGroupName = 'rg-gh-runners-env-infra-001'
 param parManagedEnvironmentName = 'env-gh-runners-001'
 
+/* only used for testing
+param parTestVnetServiceEndpoint = {
+  storageAccountName: 'st4runnertest001'
+  containerName: 'testcontainer'
+}*/
+
 param parAcjName = 'acj-gh-runners-001'
 param parAcaName = 'aca-gh-runners-001'
 param parContainer = {
