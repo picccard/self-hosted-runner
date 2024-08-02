@@ -1,0 +1,36 @@
+name: Put file in private storage
+on:
+  workflow_dispatch:
+
+env:
+  PRIVATE_STORAGE_ACCOUNT_NAME: ${{ vars.PRIVATE_STORAGE_ACCOUNT_NAME }}
+  PRIVATE_STORAGE_ACCOUNT_CONTAINER_NAME: ${{ vars.PRIVATE_STORAGE_ACCOUNT_CONTAINER_NAME }}
+
+jobs:
+  put-file-in-private-storage:
+    runs-on: [self-hosted]
+
+    steps:
+      - name: Install pwsh modules [Az.Accounts Az.Resources Az.KeyVault Az.Automation]
+        shell: pwsh
+        run: |
+          Install-Module -Name Az.Accounts -RequiredVersion 3.0.2 -Repository PSGallery -Force
+          Install-Module -Name Az.Storage -RequiredVersion 6.1.3 -Repository PSGallery -Force
+
+      - name: Azure Login
+        shell: pwsh
+        run: |
+          Connect-AzAccount -Identity -AccountId $env:MSI_CLIENT_ID
+  
+      - name: Put blob in container
+        shell: pwsh
+        run: |
+          $fileName = "testdata-{0}.log" -f (Get-Date).ToString("yyyyMMdd-HH-mm-ss")
+          Set-Content -Path $fileName -Value "example contant"
+          $stContext = New-AzStorageContext -StorageAccountName $env:PRIVATE_STORAGE_ACCOUNT_NAME
+          $splat = @{
+              File = $fileName
+              Container = $env:PRIVATE_STORAGE_ACCOUNT_CONTAINER_NAME
+              Context = $stContext
+          }
+          Set-AzStorageBlobContent @splat
