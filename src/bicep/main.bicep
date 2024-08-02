@@ -97,19 +97,19 @@ module vnet 'br/public:avm/res/network/virtual-network:0.1.8' = {
   scope: rg
   params: {
     name: parManagedEnvironmentVnetName
-    addressPrefixes: [
-      '10.20.0.0/16'
-    ]
+    addressPrefixes: ['10.20.0.0/16']
     subnets: [
       {
         name: parManagedEnvironmentInfraSubnetName
         addressPrefix: '10.20.0.0/23'
-        delegation: [
+        /*delegations: [
           {
             name: 'Microsoft.App.environments'
-            service: 'Microsoft.App/environments'
+            properties: {
+              serviceName: 'Microsoft.App/environments'
+            }
           }
-        ]
+        ]*/
       }
     ]
   }
