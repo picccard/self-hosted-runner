@@ -110,6 +110,9 @@ module vnet 'br/public:avm/res/network/virtual-network:0.1.8' = {
             }
           }
         ]*/
+        serviceEndpoints: [
+          { service: 'Microsoft.Storage' }
+        ]
       }
     ]
   }
