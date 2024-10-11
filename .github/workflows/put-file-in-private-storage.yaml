@@ -11,7 +11,7 @@ jobs:
     runs-on: [self-hosted]
 
     steps:
-      - name: Install pwsh modules [Az.Accounts Az.Resources Az.KeyVault Az.Automation]
+      - name: Install pwsh modules
         shell: pwsh
         run: |
           Install-Module -Name Az.Accounts -RequiredVersion 3.0.2 -Repository PSGallery -Force
