@@ -1,10 +1,14 @@
 name: Print runner data
+on:
+  workflow_dispatch:
+    inputs:
+      use_sudo:
+        type: boolean
+        description: Execute commands as sudo
+        default: false
 
 env:
   version_bicep: v0.28.1
-
-on:
-  workflow_dispatch:
 
 jobs:
   print-runner-data:
@@ -14,11 +18,13 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Az Cli
+        if: ${{ github.event.inputs.use_sudo == true }}
         shell: pwsh
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
       - name: Install and configure Bicep version ${{ env.version_bicep }}
+        if: ${{ github.event.inputs.use_sudo == true }}
         shell: pwsh
         run: |
           curl -Lo bicep https://github.com/Azure/bicep/releases/download/${{ env.version_bicep }}/bicep-linux-x64
